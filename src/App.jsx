@@ -6,9 +6,12 @@ import { AccountsProvider } from "./context/AccountsContext";
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route exact path="/" element={<Index />} />
-      </Routes>
+      <AccountsProvider>
+        <Routes>
+          <Route exact path="/" element={<Index />} />
+          <Route path="/transfer" element={<Transfer />} />
+        </Routes>
+      </AccountsProvider>
     </Router>
   );
 }
