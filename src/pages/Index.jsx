@@ -1,28 +1,32 @@
-import { Box, Button, Container, Divider, Flex, Heading, Input, Stack, Text, useToast } from "@chakra-ui/react";
+import { Box, Button, Container, Divider, Flex, Heading, Input, Select, Stack, Text, useToast } from "@chakra-ui/react";
 import { FaMoneyBillAlt, FaPiggyBank, FaUserCircle } from "react-icons/fa";
 import React, { useState } from "react";
+import { useAccounts } from "../context/AccountsContext";
 
 const Index = () => {
-  const [balance, setBalance] = useState(1000); // Starting balance
+  const { accounts, deposit, withdraw } = useAccounts();
+  const [selectedAccount, setSelectedAccount] = useState(Object.keys(accounts)[0]);
   const [amount, setAmount] = useState("");
   const toast = useToast();
 
+  // Remove the entire old Index function declaration along with its logic
+
   const handleDeposit = () => {
     const numAmount = parseFloat(amount);
-    if (isNaN(numAmount) || numAmount <= 0) {
-      toast({
-        title: "Invalid amount",
-        description: "Please enter a valid amount to deposit.",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-    } else {
-      setBalance(balance + numAmount);
+    if (!isNaN(numAmount) && numAmount > 0) {
+      deposit(selectedAccount, numAmount);
       toast({
         title: "Success",
         description: `Deposited $${numAmount.toFixed(2)}`,
         status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } else {
+      toast({
+        title: "Invalid amount",
+        description: "Please enter a valid amount to deposit.",
+        status: "error",
         duration: 3000,
         isClosable: true,
       });
@@ -32,15 +36,16 @@ const Index = () => {
 
   const handleWithdraw = () => {
     const numAmount = parseFloat(amount);
-    if (isNaN(numAmount) || numAmount <= 0) {
+    if (!isNaN(numAmount) && numAmount > 0 && numAmount <= accounts[selectedAccount]) {
+      withdraw(selectedAccount, numAmount);
       toast({
-        title: "Invalid amount",
-        description: "Please enter a valid amount to withdraw.",
-        status: "error",
+        title: "Success",
+        description: `Withdrew $${numAmount.toFixed(2)}`,
+        status: "success",
         duration: 3000,
         isClosable: true,
       });
-    } else if (numAmount > balance) {
+    } else if (numAmount > accounts[selectedAccount]) {
       toast({
         title: "Insufficient funds",
         description: "You don't have enough funds to withdraw.",
@@ -49,11 +54,10 @@ const Index = () => {
         isClosable: true,
       });
     } else {
-      setBalance(balance - numAmount);
       toast({
-        title: "Success",
-        description: `Withdrew $${numAmount.toFixed(2)}`,
-        status: "success",
+        title: "Invalid amount",
+        description: "Please enter a valid amount to withdraw.",
+        status: "error",
         duration: 3000,
         isClosable: true,
       });
@@ -72,9 +76,15 @@ const Index = () => {
       <Divider my={4} />
       <Box>
         <Flex alignItems="center" justifyContent="space-between" mb={8}>
-          <Text fontSize="2xl">Balance:</Text>
+          <Select placeholder="Select account" value={selectedAccount} onChange={(e) => setSelectedAccount(e.target.value)}>
+            {Object.keys(accounts).map((account) => (
+              <option key={account} value={account}>
+                {account}
+              </option>
+            ))}
+          </Select>
           <Text fontSize="2xl" fontWeight="bold">
-            ${balance.toFixed(2)}
+            ${accounts[selectedAccount].toFixed(2)}
           </Text>
         </Flex>
         <Stack spacing={4}>

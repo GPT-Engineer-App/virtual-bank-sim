@@ -1,5 +1,7 @@
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import Index from "./pages/Index.jsx";
+import Transfer from "./pages/Transfer.jsx";
+import { AccountsProvider } from "./context/AccountsContext";
 
 function App() {
   return (
